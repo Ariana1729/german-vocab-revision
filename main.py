@@ -1,12 +1,3 @@
-# TODO:
-#   fix code for back
-#   parse /in and /-frau
-#   multiple possiblities like saunas/saunen or der/die cola
-#   plural parsing with like -"e
-#   copy paste fails sometimes for things with nonascii???
-#   scrolling
-#   proper database to add vocab and store user's scores
-
 from functools import reduce
 
 #   """""""""""""
@@ -169,6 +160,7 @@ import curses
 chrs = list(b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ \t")
 kmap = {e:g for e,g in zip(b"aouAOUs","äöüÄÖÜß")}
 cltrmap = {e:g for e,g in zip([1,15,21,19],"äöüß")}
+#germap = {e:g for e,g in zip("äöüÄÖÜß".encode()[1::2],"äöüÄÖÜß")}
 def getline(stdscr):
     s = ""
     buf = None
@@ -176,7 +168,8 @@ def getline(stdscr):
         c = stdscr.getch()
         if buf:
             if buf == 195:
-                stdscr.addstr(bytes([buf,c]).decode("utf-8"))
+                s += bytes([buf,c]).decode("utf-8")
+                stdscr.addstr(s[-1])
                 buf = None
             elif buf == 11:
                 if c in kmap:
@@ -195,7 +188,7 @@ def getline(stdscr):
         elif c in cltrmap:
             s += cltrmap[c]
             stdscr.addstr(s[-1])
-        elif c in [263,330]:
+        elif c in [127,263,330]:
             if s == "":
                 continue
             y,x = stdscr.getyx()
@@ -373,7 +366,7 @@ def main(stdscr):
     curses.cbreak()
     stdscr.clear()
     stdscr.move(0,0)
-    stdscr.addstr("Hi! Here's just a really simple thing to help practice vocab\nYou can add äöüÄÖÜß by typing Cltr+K aouAOUs or Cltr+aous for the lower case ones, try it! Press enter to continue\n")
+    stdscr.addstr(f"Hi! Here's just a really simple thing to help practice vocab\nLoaded {len(words)} words\nYou can add äöüÄÖÜß by typing Cltr+K aouAOUs or Cltr+aous for the lower case ones, try it! Press enter to continue\n")
     stdscr.addstr(f"Input: {getline(stdscr)}\n")
     getline(stdscr)
     stdscr.clear()
